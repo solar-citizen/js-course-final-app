@@ -1,6 +1,7 @@
 import { Component } from '../core/component';
 import { apiService } from '../services/api.service';
 import { TransformService } from '../services/transform.service';
+import { renderPost } from '../templates/post.template';
 
 export class PostsComponent extends Component {
   constructor(id, { loader }) {
@@ -12,7 +13,7 @@ export class PostsComponent extends Component {
     this.loader.show();
     const fbData = await apiService.fetchPosts();
     const posts = TransformService.fbObjectToArray(fbData);
-    const html = posts.map((post) => renderPost(post));
+    const html = posts.map((post) => renderPost(post, { withButton: true }));
     this.loader.hide();
     this.$el.insertAdjacentHTML('afterbegin', html.join(' '));
   }
@@ -20,30 +21,31 @@ export class PostsComponent extends Component {
   onHide() {
     this.$el.innerHTML = '';
   }
+
+  init() {
+    this.$el.addEventListener('click', buttonClickHandler.bind(this));
+  }
 }
 
-function renderPost(post) {
-  const tag =
-    post.type === 'news'
-      ? '<li class="tag tag-blue tag-rounded">Новость</li>'
-      : '<li class="tag tag-rounded">Заметка</li>';
-  const button =
-    '<button class="button button-round button-small button-primary">Сохранить</button>';
-  return `
-    <div class="panel">
-      <div class="panel-head">
-        <p class="panel-title">${post.title}</p>
-        <ul class="tags">
-          ${tag}
-        </ul>
-      </div>
-      <div class="panel-body">
-        <p class="multi-line">${post.fulltext}</p>
-      </div>
-      <div class="panel-footer w-panel-footer">
-        <small>${post.date}</small>
-        ${button}
-      </div>
-    </div>
-  `;
+function buttonClickHandler(e) {
+  const $el = e.target;
+  const id = $el.dataset.id;
+
+  if (id) {
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+    if (favorites.includes(id)) {
+      $el.textContent = 'Сохранить';
+      $el.classList.add('button-primary');
+      $el.classList.remove('button-danger');
+      favorites = favorites.filter((fID) => fID !== id);
+    } else {
+      $el.textContent = 'Удалить';
+      $el.classList.remove('button-primary');
+      $el.classList.add('button-danger');
+      favorites.push(id);
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }
 }

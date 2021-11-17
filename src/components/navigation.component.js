@@ -6,12 +6,13 @@ export class NavigationComponent extends Component {
 
     this.tabs = [];
   }
-  init() {
-    this.$el.addEventListener('click', tabClickHandler.bind(this));
-  }
 
   registerTabs(tabs) {
     this.tabs = tabs;
+  }
+
+  init() {
+    this.$el.addEventListener('click', tabClickHandler.bind(this));
   }
 }
 
