@@ -27,7 +27,7 @@ async function linkClickHandler(e) {
   e.preventDefault();
 
   if (e.target.classList.contains('js-link')) {
-    const postId = e.target.textContent;
+    const postId = e.target.dataset.id;
 
     this.$el.innerHTML = '';
     this.loader.show();
@@ -47,10 +47,13 @@ function renderList(list = []) {
     return `
       <ul>
         ${list
-          .map((item) => `<li><a href='#' class='js-link'>${item}</a></li>`)
+          .map(
+            (item) =>
+              `<li><a href="#" class="js-link" data-id="${item.id}">${item.title}</a></li>`
+          )
           .join(' ')}
       </ul>
     `;
   }
-  return `<p class="center">Вы пока ничего не добавили в избранное.</p>`;
+  return `<div class="center">Вы пока ничего не добавили в избранное.</div>`;
 }
